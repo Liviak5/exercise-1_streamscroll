@@ -1,34 +1,32 @@
 <script lang="ts" setup>
-import {onMounted, ref, watch} from "vue";
+import {onMounted, ref, watch, nextTick} from "vue";
 
 const streamWrapper = ref<HTMLDivElement | null>(null);
 const streamArray = ref<string[]>([]);
 const streamEntry = ref<string>('');
-const threshold = ref<number>(18);
+const threshold = 75;
+const userScrolledToEnd = ref<boolean>()
 
-
-// Simulates the Stream
-function createNewText(): void {
+function createTextForSimulationStream(): void {
   streamArray.value.push("new text: " + new Date());
   setTimeout(() => {
     scrollToEnd();
-    createNewText();
+    createTextForSimulationStream();
   }, 3000);
 }
 
-// Scroll to the End if user is not scrolling up
-function scrollToEnd(): void {
-  // its only possible with spa
-  const positionNow = window.scrollY + window.innerHeight
-  const positionEnd = window.document.body.scrollHeight - threshold.value;
-  console.dir(positionNow >= positionEnd)
- // nextTick might be usefull
-  if (streamWrapper.value && positionNow >= positionEnd) {
-    const position = window.document.body.scrollHeight
-    window.scrollTo(0, position);
+async function scrollToEnd() {
+  await nextTick();
+  if (streamWrapper.value) {
+    const positionNow = streamWrapper.value.clientHeight + streamWrapper.value.scrollTop
+    const positionEnd = streamWrapper.value.scrollHeight - threshold;
+    userScrolledToEnd.value = positionNow >= positionEnd;
+    if (userScrolledToEnd.value) {
+      streamWrapper.value.scrollTo(0, streamWrapper.value.scrollHeight);
+    }
   }
-}
 
+}
 watch(streamEntry, (newValue, oldValue) => {
   if (newValue !== oldValue) {
     scrollToEnd();
@@ -36,7 +34,7 @@ watch(streamEntry, (newValue, oldValue) => {
 })
 
 onMounted(() => {
-  createNewText()
+  createTextForSimulationStream()
 })
 </script>
 
@@ -45,8 +43,8 @@ onMounted(() => {
     <h1>Exercise 1 – simulation streaming</h1>
   </header>
   <main class="wrapper">
-    <div class="stream" ref="streamWrapper">
-      <p v-for="(entry, index) in streamArray" :key="index">{{entry}}</p>
+    <div ref="streamWrapper" class="stream">
+      <p v-for="(entry, index) in streamArray" :key="index">{{ entry }}</p>
     </div>
   </main>
 </template>
@@ -59,6 +57,7 @@ onMounted(() => {
   -o-#{$property}: $value;
   $property: $value;
 }
+
 html {
   @include venderprefix(box-sizing, border-box);
   margin: 0;
@@ -77,7 +76,7 @@ html {
   padding: 0;
 }
 
-.wrapper{
+.wrapper {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
@@ -89,10 +88,11 @@ html {
     grid-template-columns: repeat(12, 1fr);
   }
 }
+
 header {
   grid-template-areas: "title title title title";
   margin-top: 4rem;
-  padding: 1rem;
+  margin-bottom: 2rem;
   @media (min-width: 425px) {
     grid-template-areas: ". . title title title title . .";
   }
@@ -100,9 +100,9 @@ header {
     grid-template-areas: ". . . title title title title title title . . .";
   }
 }
+
 main {
   grid-template-areas: "stream stream stream stream";
-  margin-top: 2rem;
   @media (min-width: 425px) {
     grid-template-areas: "stream stream stream stream . . . .";
   }
@@ -120,6 +120,8 @@ h1 {
 
 .stream {
   grid-area: stream;
+  height: 80vh;
+  overflow-y: scroll;
 }
 
 </style>
