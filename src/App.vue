@@ -11,6 +11,7 @@ const threshold = ref<number>(18);
 function createNewText(): void {
   streamArray.value.push("new text: " + new Date());
   setTimeout(() => {
+    scrollToEnd();
     createNewText();
   }, 3000);
 }
@@ -20,6 +21,7 @@ function scrollToEnd(): void {
   // its only possible with spa
   const positionNow = window.scrollY + window.innerHeight
   const positionEnd = window.document.body.scrollHeight - threshold.value;
+  console.dir(positionNow >= positionEnd)
  // nextTick might be usefull
   if (streamWrapper.value && positionNow >= positionEnd) {
     const position = window.document.body.scrollHeight
