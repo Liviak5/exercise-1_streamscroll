@@ -39,10 +39,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <header>
+  <header class="wrapper">
     <h1>Exercise 1 – simulation streaming</h1>
   </header>
-  <main>
+  <main class="wrapper">
     <div class="stream" ref="streamWrapper">
       <p v-for="(entry, index) in streamArray" :key="index">{{entry}}</p>
     </div>
@@ -75,20 +75,37 @@ html {
   padding: 0;
 }
 
-header {
+.wrapper{
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-template-areas: "title title title title";
   gap: 1rem;
-  margin-top: 4rem;
   padding: 1rem;
   @media (min-width: 425px) {
     grid-template-columns: repeat(8, 1fr);
-    grid-template-areas: ". . title title title title . .";
   }
   @media (min-width: 768px) {
     grid-template-columns: repeat(12, 1fr);
+  }
+}
+header {
+  grid-template-areas: "title title title title";
+  margin-top: 4rem;
+  padding: 1rem;
+  @media (min-width: 425px) {
+    grid-template-areas: ". . title title title title . .";
+  }
+  @media (min-width: 768px) {
     grid-template-areas: ". . . title title title title title title . . .";
+  }
+}
+main {
+  grid-template-areas: "stream stream stream stream";
+  margin-top: 2rem;
+  @media (min-width: 425px) {
+    grid-template-areas: "stream stream stream stream . . . .";
+  }
+  @media (min-width: 768px) {
+    grid-template-areas: ". . . . stream stream stream stream stream stream . .";
   }
 }
 
@@ -98,22 +115,7 @@ h1 {
   line-height: 2rem;
 }
 
-main {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-areas: "stream stream stream stream";
-  gap: 1rem;
-  margin-top: 2rem;
-  padding: 1rem;
-  @media (min-width: 425px) {
-    grid-template-columns: repeat(8, 1fr);
-    grid-template-areas: ". . stream stream stream stream . .";
-  }
-  @media (min-width: 768px) {
-    grid-template-columns: repeat(12, 1fr);
-    grid-template-areas: ". . . stream stream stream stream stream stream . . .";
-  }
-}
+
 .stream {
   grid-area: stream;
 }
