@@ -1,13 +1,15 @@
 <script lang="ts" setup>
 import {onMounted, ref, watch} from "vue";
 
-const streamWrapper = ref<HTMLInputElement | null>(null);
+const streamWrapper = ref<HTMLDivElement | null>(null);
+const streamArray = ref<string[]>([]);
 const streamEntry = ref<string>('');
+const threshold = ref<number>(18);
 
 
 // Simulates the Stream
 function createNewText(): void {
-  streamEntry.value = "new text: " + new Date();
+  streamArray.value.push("new text: " + new Date());
   setTimeout(() => {
     createNewText();
   }, 3000);
@@ -17,7 +19,7 @@ function createNewText(): void {
 function scrollToEnd(): void {
   // its only possible with spa
   const positionNow = window.scrollY + window.innerHeight
-  const positionEnd = window.document.body.scrollHeight - 18;
+  const positionEnd = window.document.body.scrollHeight - threshold.value;
  // nextTick might be usefull
   if (streamWrapper.value && positionNow >= positionEnd) {
     const position = window.document.body.scrollHeight
@@ -27,9 +29,6 @@ function scrollToEnd(): void {
 
 watch(streamEntry, (newValue, oldValue) => {
   if (newValue !== oldValue) {
-    const child = document.createElement("p")
-    child.textContent = streamEntry.value;
-    streamWrapper.value?.appendChild(child)
     scrollToEnd();
   }
 })
@@ -45,6 +44,7 @@ onMounted(() => {
   </header>
   <main>
     <div class="stream" ref="streamWrapper">
+      <p v-for="(entry, index) in streamArray" :key="index">{{entry}}</p>
     </div>
   </main>
 </template>
